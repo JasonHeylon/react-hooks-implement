@@ -44,10 +44,12 @@ export function createDom(fiber) {
   }
   return dom;
 }
+
 const isEvent = (key) => key.startsWith('on');
 const isProperty = (key) => key !== 'children' && !isEvent(key);
 const isNew = (prev, next) => (key) => prev[key] !== next[key];
 const isGone = (prev, next) => (key) => !(key in next);
+
 function updateDom(dom, prevProps, nextProps) {
   // 去掉event listener
   Object.keys(prevProps)
@@ -57,6 +59,7 @@ function updateDom(dom, prevProps, nextProps) {
       const eventType = name.toLowerCase().substring(2);
       dom.removeEventListener(eventType, prevProps[name]);
     });
+
   // 移除之前不用的属性
   Object.keys(prevProps)
     .filter(isProperty)
@@ -64,6 +67,7 @@ function updateDom(dom, prevProps, nextProps) {
     .forEach((name) => {
       dom[name] = '';
     });
+
   // 添加新的属性 设置修改的属性
   Object.keys(nextProps)
     .filter(isProperty)
@@ -71,6 +75,7 @@ function updateDom(dom, prevProps, nextProps) {
     .forEach((name) => {
       dom[name] = nextProps[name];
     });
+
   // 添加event listener
   Object.keys(nextProps)
     .filter(isEvent)
@@ -84,10 +89,13 @@ function updateDom(dom, prevProps, nextProps) {
 // 递归 调和
 export function reconcile(Component, root) {
   const type = Component.type;
+
   if (Array.isArray(Component)) {
     return Component.map((child) => reconcile(child, root));
   }
+
   const Comp = typeof type === 'string' ? Component : type();
+
   if (Comp.props && Comp.props.children) {
     Comp.props.children.forEach((child, idx) => {
       if (typeof child.type !== 'string') {
